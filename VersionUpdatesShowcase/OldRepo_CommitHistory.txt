@@ -1,0 +1,460 @@
+commit b356dc441f3adb8e26e8ae967e2608846bc2411b
+Author: SirMrTyler <110429269+SirMrTyler@users.noreply.github.com>
+Date:   Wed Nov 30 00:33:54 2022 -0800
+
+    v3.5 Turn In Place Bug & Automatic Fire
+    
+    CHANGELOG:
+    1. Fixed character jitter during turning in place animations.
+       - The animation blueprint updates slower than the tick functions in code.
+       - Fixed this by rotating the character in code for any character that is ran on a simulated proxy (and playing animations depending on when the character is moving). Instead of using the animation blueprint.
+    2. Added automatic fire to the rifle weapon.
+       - Used a fire timer and a fire delay between each shot.
+       - Added the ability to tell whether the weapon could shot (such as if it was out of ammo etc).
+       - Added the ability to determine if a weapon had automatic capabilities.
+    
+    ISSUES:
+    1. At first the character's animations bugged out and turned into an A pose as I started to implement corrective turning in place features.
+       - I determined that the AO_Yaw, and pitch adjustments were impacting it.
+       - Made fixes, and jitter is gone.
+    
+    NEXT UPDATE:
+    Version 4!!!
+    Version 4 will mostly consist of player stat implementation (I.E. Damage, health, destruction upon death, etc).
+
+commit 3a08d3a6419227a5d51064a11fe02cc96628e4aa
+Author: SirMrTyler <110429269+SirMrTyler@users.noreply.github.com>
+Date:   Sun Nov 27 10:23:15 2022 -0800
+
+    v3.4 Hit Target Reg. / Cam. Fix.
+    
+    CHANGELOG:
+    1. The character got in the way when the camera was to close to the player.
+       - Hid character when they were to close to the camera.
+    2. Line trace would sometimes aim in wrong directions when to close to camera (allowing you to shoot at yourself, things behind your character, and changing crosshair color).
+       - Trace start location was behind the character where the camera is. Moved it to the front of the character.
+    3. Added bullet hit registration between characters.
+       - Implemented a new skeletal mesh collision channel within unreal's project settings.
+       - Defined the new collision mesh's parameters within c++ files.
+       - Plays animation when a player gets hit. I kept this animation labelled as "unreliable" when it comes to it's network tag, because it's not as important as things like damage, hp, etc.
+    
+    ISSUES:
+    1. I got hung up on why my new collision channel was giving me an error when I was attempting to change one of it's parameters and compile.
+       - I had the channel listed as ECollisionChannel::MyCollision. It should have just been MyCollision. Even though it overrides ECollisionChannel::GameTraceChannel1 which is used as a placeholder for custom channels. This was a 5 
+	 min fix.
+    
+    NEXT UPDATE:
+    v3.5 Turning In Place Jitter & Automatic Fire
+    1. At the moment when another client watches a seperate client turn in place. The moving client has a jitter to their movements. This has to do with an unreal built in movement repnotify. This wilil be fixed.
+    2. Will also be adding automatic weapon fire.
+
+commit 90124a0e4e0ff220d55fde90d0dd5d0e79245abc
+Author: SirMrTyler <110429269+SirMrTyler@users.noreply.github.com>
+Date:   Sat Nov 26 20:38:38 2022 -0800
+
+    v3.3 Crosshair Size & Color Shifting
+    
+    CHANGELOG:
+    1. Shrank crosshairs when aiming.
+    2. Spread crosshairs after shooting.
+    3. Added crosshair color changing.
+       - Created an interface class to provide cross hair attributes to objects.
+       - Gave cross hair attributes to player characters.
+       - Implemented a trace hit result that scans for actors and changes the color of the crosshair according to whether or not that hit result actor has cross hair interface attributes.
+       - When character does have attributes the crosshair turns Red when a player aims at another player. Everything else turns it white.
+    
+    ISSUES:
+    1. I spent about 4 hours trying to figure out why the trace hit result wasn't registering hits.
+       - Added a debug line to see if the hit result was accurate. It was.
+       - Implemented debug message telling me what actor the trace was hitting on the visibility channel. It named every actor except for the player character's.
+       - Switched the player characters capsule component collision to blocked to see if debug message would then list player character under hit result. It did.
+       - This lead told me that the characters skeletal mesh lacked any kind of collision. It turns out the Physics asset had become corrupted. So I built a new physics asset from scratch and it worked.
+    
+    NEXT UPDATE:
+    v3.4 Hitting Character Events
+    1. Will add bullet collision with other player characters.
+
+commit 61dd166e1899f97857152469e7e0ed9ae748dc8b
+Author: SirMrTyler <110429269+SirMrTyler@users.noreply.github.com>
+Date:   Thu Nov 24 12:43:29 2022 -0800
+
+    v3.2 Weapon Rotation and Aim Zooming
+    
+    v3.2 Weapon Rotation Fix
+    1. Fixed an issue where the gun is pointed away from where the player is actually aiming.
+       - Accessed the socket transform of the right hand from the character mesh every frame.
+       - Passed that information to the character animBP to move the hand to the weapon/hand to the proper position.
+       - Blended the fabric node by bool so that this would only happen on local machines. It would be a waste of bandwidth otherwise.
+    2. Added camera zoom while the player is aiming.
+       - Added a currentfov, defaultfov, and speedfov to Weapon.h.
+       - These values are used to compare against and set the playable character's FOV when compared against the bAiming variable.
+       - There was a bit of blurriness when zooming. Changed some of the character_BP camera values to remedy that. (See version 3.2 character bp screenshot for details).
+    
+    NEXT NEXT UPDATE:
+    v3.3 Crosshair Size/Color Changing
+
+commit 209f04923afce33608b931f340c8c6bbc7cf1a95
+Author: SirMrTyler <110429269+SirMrTyler@users.noreply.github.com>
+Date:   Mon Nov 21 16:31:59 2022 -0800
+
+    v3.1 Crosshair Spread
+    
+    CHANGELOG:
+    1. Added crosshair spread based on:
+       - Player movement speed
+       - Crouching
+       - Jumping
+       - Aiming
+    
+    NEXT UPDATE:
+    v3.2 Weapon Rotation Fix
+    1. At the moment the weapons rotation is slightly off. That will be fixed next patch.
+    
+    NEXT NEXT UPDATE:
+    v3.3 Zoom While Aiming
+
+commit 3a77df6a6269761734bb4d2f539a75bbd945d518
+Author: SirMrTyler <110429269+SirMrTyler@users.noreply.github.com>
+Date:   Sat Nov 19 12:23:51 2022 -0800
+
+    RE: Portal Update
+    
+    CHANGELOG:
+    1. Created Niagara Particle System/Emitter.
+    2. Created 2-way portal C++/blueprint class.
+       - Uses a box component that reads begin/end overlapping events within c++.
+       - Set up for single-player, then multiplayer after portal was fully functional.
+       - Attached Niagara system to static mesh (root component) of Portal Class.
+       - Added sound effects to portal entrance/exit.
+    
+    SIDENOTE: This is just a side update I wanted to do and it was very fun! Lot's of struggles but I managed to get it working <3
+
+commit e4c31556ec3dc9ec7ba3c84e77c8a36aba1070ee
+Author: SirMrTyler <110429269+SirMrTyler@users.noreply.github.com>
+Date:   Thu Nov 17 19:13:26 2022 -0800
+
+    Portal Update
+
+commit 2b01d6d5a176f41208bc6262896515826cc46f33
+Author: SirMrTyler <110429269+SirMrTyler@users.noreply.github.com>
+Date:   Sat Nov 12 14:45:41 2022 -0800
+
+    v3.0 Different Weapon Types (Not Really)
+    
+    CHANGELOG:
+    1. Last update I lied. How will I ever be forgiven? Version 3 will be all about adding weapon aim mechanics before adding new weapons. Gr8 b8 m8.
+    
+    With that being said:
+    v3.0 HUD and Player Controller:
+    1. Created a Heads Up Display (HUD) to use throughout the games development.
+    2. Implemented an updated player controller to integrate the HUD with while pulling information from combat/movement related variables.
+    3. Updated BP_BlasterGameMode's default player controller and default HUD to these newly created classes.
+    4. Drew textures/crosshair to screen using newly created HUD/Playercontroller classes.
+    
+    NEXT UPDATE:
+    v3.1 Crosshairs
+    1. Will add crosshairs to the game (who would have thought).
+
+commit bd349ac2652eae11440a4949131b7e13dfb58721
+Author: SirMrTyler <110429269+SirMrTyler@users.noreply.github.com>
+Date:   Wed Nov 9 20:38:08 2022 -0800
+
+    v2.7 Bullet Shell Physics
+    
+    CHANGELOG:
+    1. Added gravitational/movement affects to they don't just sit there after spawned anymore.
+    2. Implemented shell sounds to bullets so that when they fall they make a noise.
+    3. Created a means to destroy shells so after x amount of time so the map won't be filled with bullets. This helps visually, and with performance.
+    
+    NEXT UPDATE:
+    v3.0 Different Weapon Types
+    1. Version 3 and it's subsections will implement:
+       - Rocket Launchers
+       - SMG's
+       - Shotguns
+       - Sniper Rifles
+       - Grenade Launchers
+    This will be a large update with a lot of cool stuff added!
+
+commit 1c80fcf87e19dafa457d67a3b9507a4bc405fc9d
+Author: SirMrTyler <110429269+SirMrTyler@users.noreply.github.com>
+Date:   Fri Nov 4 11:24:56 2022 -0700
+
+    v2.6 Bullet Casing Ejection
+    
+    CHANGELOG:
+    1. Added C++ Casing class and BP_Casing class.
+    2. Implemented static mesh setting to be used within BP_Casing.
+    3. Attached bullet SM to bullet ejection socket of weapon. Bullets now spawn when weapon is fired.
+    
+    NEXT UPDATE:
+    v2.7 Shell Physics
+    1. Will add a velocity/movement mechanic to shells exiting the weapon shell valve to give a visual flare.
+
+commit b1b179b6e7496cff7d6e6035743968a3a543b33a
+Author: SirMrTyler <110429269+SirMrTyler@users.noreply.github.com>
+Date:   Fri Nov 4 10:41:13 2022 -0700
+
+    v2.5 Projectile Hit Events
+    
+    CHANGELOG:
+    1. Created Hit Event for Projectiles
+       - Added a UFUNCTION called OnHit, which passes hit location information to sound/particle system for them to use. As well as player hits in the future.
+    2. Set up ability to destroy the projectile once it hits something.
+       - Used UE5's default destroy() function.
+    3. Implemented hit particles and sounds.
+       - Declared/defined a particle system to handle impact particles.
+       - Declared/defined a soundcue system to handle impact sounds.
+       - Selected assets within BP_Projectile using these new systems.
+    4. Handled hit event variable replication for multiplayer gameplay.
+       - Rather than creating a multicast rpc to replicate the impact fx. I took advantage of unreal's Destroyed() function. It replicates that information down to all clients by default. So I called the impact fx within that function; as the object needed to be destroyed anyway. This lowers network bandwidth.
+    
+    NEXT UPDATE:
+    v2.6 Bullet Shells
+    1. Will add a bullet shell ejection mechanic for visual effect.
+
+commit 5427099619137ea3efd6ab995736d0f9300b781f
+Author: SirMrTyler <110429269+SirMrTyler@users.noreply.github.com>
+Date:   Thu Nov 3 12:46:39 2022 -0700
+
+    v2.4 Weapon Projectile Movement
+    
+    CHANGELOG:
+    1. Added a projectile movement component.
+       - Set projectile velocity to 15,000cm/s. This gives a decent bullet drop amount and still give bullet travel visibility.
+       - Set bRotationFollowsVelocity to true so that the bullet curves as velocity drops. As if it's mimicking the effects of gravity.
+    2. Added a projectile tracer.
+       - Added to projectile class
+       - Spawns only on server, and then replicated to clients. (This prevents cheating).
+    3. Replaced hit target so that the server properly displays where the tracer is going (it originally only displayed it at world origin).
+       - Sends projectile in the correct direction.
+       - This was done by creating an RPC call.
+       - Data was sent across the network using FVector_NetQuantize (it's an optimized function for sending data across the network in mass by reducing the bit size of each component).
+    
+    NEXT UPDATE:
+    v2.5 Projectile Hit Events
+    1. Will add hit events that will allow us to eventually deal damage.
+    2. Add sounds and particles to bullet impacts.
+    3. Add projectile destruction. At the moment they stay there indefinitely.
+
+commit 7f9f975040e1a30c31e92e8e448f553b98cc32a0
+Author: SirMrTyler <110429269+SirMrTyler@users.noreply.github.com>
+Date:   Thu Nov 3 10:43:09 2022 -0700
+
+    v2.3 Weapon Projectile Spawning
+    
+    CHANGELOG:
+    1. Implemented projectile spawning.
+       - Added FVector input parameter by const reference to fire function. Made fire function virtual so I could override it within other classes/header files.
+       - Spawns projectile within projectile weapon because we added a projectile class TSubclassOf variable to the projectile.
+       - Currently we're only spawning the collision box for the projectile. In future updates we will implement projectile velocity as well as adding a mesh and tracer to the projectile.
+    
+    NEXT UPDATE:
+    v2.4 Weapon Projectile Movement
+    1. Will add a tracer path to the projectile.
+    2. Will add a velocity mechanic to the projectile.
+
+commit 7bd90c756171119eb0527771da9730c30b1a8bc7
+Author: SirMrTyler <110429269+SirMrTyler@users.noreply.github.com>
+Date:   Thu Nov 3 09:39:26 2022 -0700
+
+    v2.2 Hit Targets
+    
+    CHANGELOG:
+    1. Implemented a shooting direction based on the PC camera orientation.
+    2. Set up a line trace with debug sphere (so we can see where it will hit) so that when weapon is fired a target location (or hit target) can be acquired.
+       - This hit target will be used as a target point for projectiles when they're spawned.
+    
+    NEXT UPDATE:
+    v2.3 Projectile Spawn Handling
+    1. Override fire function
+    2. Add a hit target to the fire function
+
+commit 24cf0f221120e0d041a860eb11db23e26d3d6372
+Author: SirMrTyler <110429269+SirMrTyler@users.noreply.github.com>
+Date:   Wed Nov 2 10:28:57 2022 -0700
+
+    v2.1 Fire Weapon Effects
+    
+    CHANGELOG:
+    1. Added a fire animation for weapon class which our projectile class inherits.
+    2. Created a projectile weapon blueprint and set it's fire animation (which is played when weapon is fired).
+       - At first that function/animation was only shown locally (as in; other clients couldn't see the shooter fire). So I had to replicate it's functionality to share to the server and other clients.
+    3. Implemented multiplayer fire weapon effects.
+       - This was done by creating a ServerFire RPC function that will be called whether the client, or server calls it. The only problem was only the server would hold the information. So:
+       - The ServerFireRPC gets told to call a MulticastFireRPC that is used on the server to broadcast firing information to all clients.
+    
+    NEXT UPDATE:
+    v2.2 Hit Targets
+    1. Will create a hit target or a location the gun will fire whenever trigger is pulled. Not to be confused with a hit event. That will be created in a future update.
+
+commit 74232e03aefa684c1e81906caa0e9dd3b18cae43
+Author: SirMrTyler <110429269+SirMrTyler@users.noreply.github.com>
+Date:   Wed Nov 2 00:27:51 2022 -0700
+
+    v2.0 Projectile Weapon Class
+    
+    CHANGELOG:
+    1. Added a new C++ projectile weapon class.
+       - Handle projectile spawning
+       - Give projectile a velocity vector
+       - Implements gravitational possibilities onto projectiles
+       - Handle hit events
+       - Adds tracers (to track bullets)
+     2. Created a Projectile C++ class to add deeper logic to each of the items listed within section 1 up above.
+    3. Added AnimationMontage to handle what happens when PC fires weapon.
+       - This was done in editor with some variable handling within C++.
+       - Turned firing animations into additive animations to blend with our equipped weapon before applying animation offsets. That way we can still shot the weapon wherever the camera moves to.
+       - Created Cached Pose "WeaponSlot" based off of Equipped Cached Pose and used that to blend in Aim Offsets Cached Pose.
+    
+    NEXT UPDATE:
+    v2.1 Fire Weapon Effects:
+    1. Add Muzzle Flash Particles
+    2. Add Firing SFX
+
+commit b6d4b93aa22f37b8baa3790bce87ecf8911d4dbd
+Author: SirMrTyler <110429269+SirMrTyler@users.noreply.github.com>
+Date:   Tue Nov 1 12:30:24 2022 -0700
+
+    v1.9 Footstep & Jumping SFX
+    
+    CHANGELOG:
+    1. Added footstep and jump sound effects to the player character.
+       - Added a footstep sounds that cycle through 9 random options to make the steps sound far less repetitive.
+       - Added sounds whenever each foot hits the ground.
+       - Added jump start, and land sounds to each jump animation.
+    
+    NEXT UPDATE:
+    v2.0 Building Weapon Mechanics!
+       - Next update is going to bring the most critical mechanic to the game; shooting. Exciting stuff!
+       - This next update I'm going to begin creating projectile physics for bullets
+
+commit 109968df48fcde83fdcd0ae877cbb64c111728fc
+Author: SirMrTyler <110429269+SirMrTyler@users.noreply.github.com>
+Date:   Wed Oct 19 14:11:46 2022 -0700
+
+    v1.8 Updating Network Frequency
+    
+    CHANGELOG:
+    1. Updated NetUpdateFrequency max/min values.
+       - Done within BlasterCharacter.cpp constructor
+       - As well as within BP_BlasterChracter.
+    
+    2. Increased total tick rate.
+       - This was done by writing a small script command within the DefaultGameEngine.ini in the projects config file.
+    
+    NEXT UPDATE v1.9:
+    1.  Adding a crouch function to use while there is no weapon equipped.
+    2. Rotating running animations.
+
+commit aeb5c53b5ccc575bf0bae78491aee0fa65e799eb
+Author: SirMrTyler <110429269+SirMrTyler@users.noreply.github.com>
+Date:   Wed Oct 19 13:34:44 2022 -0700
+
+    v1.8_Rotating Root Bone
+    
+    CHANGELOG:
+    1. Rotated Root Bone
+       - Only applies while standing still.
+       - By taking AO_Yaw and interpolating that down to zero (Characters starting aim position). Which Results in rotating root bone left or right depending on direction.
+       - Updated animation through blending our normal idle animations by bone/AO_Yaw.
+    
+    2. Created a crouching turn in place function that rotates on the root bone as well.
+       - Mirror what was done for the standing animation except with crouching. As well as obviously using different animations. Obviously.
+    
+    NEXT UPDATE v1.9:
+    1. Net Update Frequency
+       - Determines how often the character can receive updates from the server.
+    2. Server Tick Rate
+       - Determines how quickly server send updates to each client.
+
+commit 825b496ae3611c5420aa7bc1e0d043c8b9df354e
+Author: SirMrTyler <110429269+SirMrTyler@users.noreply.github.com>
+Date:   Thu Oct 13 14:43:41 2022 -0700
+
+    v1.7 Turning PC In Place
+    
+    CHANGELOG:
+    1. Developed turning in place functionality for player characters
+       - Created new header file containing turning in place enum type. Rather than creating it within BlasterCharacter.h/BlasterAnimInstance.h so that we wouldn't have to include unnecessary data in other header files when we need access to the Enum type.
+       - Developed logic functionality for TurningInPlace enum within BlasterCharacter.cpp to pass to BlasterAnimInstance when it's time to update PC animations.
+       - Applied turning in place animations for crouching/standing in place within our Animation Blueprint (ABP_Blaster) inside the editor.
+    
+    NEXT UPDATE:
+       1. At the moment there is no player character rotation when the player is using the rotating animation; so that will be implemented.
+       2. There currently isn't a way to transition out of the turning in place animation so that will be added in the next update as well.
+
+commit 6eb3cdf9c730a8704cf01f8e29b9a5b4bae9c331
+Author: SirMrTyler <110429269+SirMrTyler@users.noreply.github.com>
+Date:   Wed Oct 12 18:57:40 2022 -0700
+
+    V1.6 FABRIK IK Blueprint Update
+    
+    CHANGELOG:
+    1. Reflects the blueprint/animation changes relative to the v1.6 code updates.
+
+commit 85c9c570e21fd0cfc029622506aed331d198cb27
+Author: SirMrTyler <110429269+SirMrTyler@users.noreply.github.com>
+Date:   Wed Oct 12 18:34:03 2022 -0700
+
+    V1.6 Forward&Backward Reaching Inverse Kinematics (FABRIK IK)Update
+    
+    CHANGELOG:
+    1. Implemented FABRIK IK for L hand placement.
+       - Did this by specifying transform for L hand within BlasterAnimInstance.
+       - Adding a socket to our Skeletal Weapon Mesh within UE's editor.
+       - In Anim Instance.cpp we got transform of socket, transformed it to bone space relative to the PC's r hand.
+       - Then in BlasterAnim_BP(blueprint); we passed that transform into the FABRIK IK node which alters left land location based on that transform.
+       - This ability can now apply to any weapon based on where that socket is (This will save countless amounts of time later when we add other weapons into the game).
+
+commit 05a65f99d4d7a062f6a6872fd3ddc50415fd2993
+Author: SirMrTyler <110429269+SirMrTyler@users.noreply.github.com>
+Date:   Wed Oct 12 14:31:23 2022 -0700
+
+    V1.5 Projects Blueprint Setup/Settings
+    
+    This is the projects blueprints settings/rules as of commit #5
+
+commit 1f7072a2ea3909a0b7aa374cc31cdabaecf757f6
+Author: SirMrTyler <110429269+SirMrTyler@users.noreply.github.com>
+Date:   Wed Oct 12 13:34:22 2022 -0700
+
+    V1.5 Projects Blueprint Setup/Settings
+    
+    This is the projects blueprints settings/rules as of commit #5
+
+commit 8b12d4ea0da23ccc29852f247ffee42fb4d15075
+Author: SirMrTyler <110429269+SirMrTyler@users.noreply.github.com>
+Date:   Wed Oct 12 12:00:23 2022 -0700
+
+    Applying Aim Offset Multiplayer Functionality
+    
+    This commit allows the weapons pitch that runs properly on the client side, to run properly on the server side as well (so that all players see proper weapon movement as the PC looks around).
+
+commit 75091fb4f50bcba469fab3b201097679a747e970
+Author: SirMrTyler <110429269+SirMrTyler@users.noreply.github.com>
+Date:   Wed Oct 12 00:02:20 2022 -0700
+
+    Applying Aim Offsets Pt. 2
+    
+    This update allows player's look direction/angle to impact how the animation is updated (i.e. when the player looks left, the weapon equipped moves left).
+    
+    Commit only affects single player functionality.
+
+commit 0c456bba40696f49a35cbfed1ee2d424b45bd7c6
+Author: SirMrTyler <110429269+SirMrTyler@users.noreply.github.com>
+Date:   Tue Oct 11 19:59:22 2022 -0700
+
+    Applying Aim Offsets Pt. 1
+
+commit 1b4f3c620f025cb14ea9fd533db703b9c84120c6
+Author: SirMrTyler <110429269+SirMrTyler@users.noreply.github.com>
+Date:   Thu Oct 6 23:51:25 2022 -0700
+
+    Create README.md
+
+commit e4a976c88c01f2408202b65c235010918cc171a8
+Author: SirMrTyler <110429269+SirMrTyler@users.noreply.github.com>
+Date:   Thu Oct 6 23:48:59 2022 -0700
+
+    Initial commit

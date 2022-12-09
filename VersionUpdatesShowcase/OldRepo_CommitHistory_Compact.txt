@@ -1,0 +1,28 @@
+b356dc4 v3.5 Turn In Place Bug & Automatic Fire
+90124a0 v3.3 Crosshair Size & Color Shifting
+61dd166 v3.2 Weapon Rotation and Aim Zooming
+209f049 v3.1 Crosshair Spread
+3a77df6 RE: Portal Update
+e4c3155 Portal Update
+2b01d6d v3.0 Different Weapon Types (Not Really)
+bd349ac v2.7 Bullet Shell Physics
+1c80fcf v2.6 Bullet Casing Ejection
+b1b179b v2.5 Projectile Hit Events
+5427099 v2.4 Weapon Projectile Movement
+7f9f975 v2.3 Weapon Projectile Spawning
+7bd90c7 v2.2 Hit Targets
+24cf0f2 v2.1 Fire Weapon Effects
+74232e0 v2.0 Projectile Weapon Class
+b6d4b93 v1.9 Footstep & Jumping SFX
+109968d v1.8 Updating Network Frequency
+aeb5c53 v1.8_Rotating Root Bone
+825b496 v1.7 Turning PC In Place
+6eb3cdf V1.6 FABRIK IK Blueprint Update
+85c9c57 V1.6 Forward&Backward Reaching Inverse Kinematics (FABRIK IK)Update
+05a65f9 V1.5 Projects Blueprint Setup/Settings
+1f7072a V1.5 Projects Blueprint Setup/Settings
+8b12d4e Applying Aim Offset Multiplayer Functionality
+75091fb Applying Aim Offsets Pt. 2
+0c456bb Applying Aim Offsets Pt. 1
+1b4f3c6 Create README.md
+e4a976c Initial commit
