@@ -12,6 +12,7 @@ UMultiplayerSessionsSubsystem::UMultiplayerSessionsSubsystem():
 	DestroySessionCompleteDelegate(FOnDestroySessionCompleteDelegate::CreateUObject(this, &ThisClass::OnDestroySessionComplete)),
 	StartSessionCompleteDelegate(FOnStartSessionCompleteDelegate::CreateUObject(this, &ThisClass::OnStartSessionComplete))
 {
+	DebugTracker = 0;
 	IOnlineSubsystem* Subsystem = IOnlineSubsystem::Get();
 	if (Subsystem)
 	{
@@ -24,19 +25,15 @@ void UMultiplayerSessionsSubsystem::DebugMessageLog(bool bDidSucceed, int LineNu
 	if (GEngine == nullptr) return;
 	FColor PassFail;
 	float MsgDuration;
-	FString DefaultMsg;
 
-	bDidSucceed ? (DefaultMsg = TEXT("Line %d Success. MultiplayerSessionsSubsystem.cpp: %s"), LineNumber, *LogResult) : (DefaultMsg = TEXT("Line %d Failure. MultiplayerSessionsSubsystem.cpp: %s"), LineNumber, *LogResult);
 	bDidSucceed ? PassFail = FColor::Green : PassFail = FColor::Red;
 	bDidSucceed ? MsgDuration = 5.f : MsgDuration = 15.f;
+	bDidSucceed ? 
+		GEngine->AddOnScreenDebugMessage(DebugTracker, MsgDuration, PassFail, FString::Printf(TEXT("Line %d Success. MultiplayerSessionsSubsystem.cpp: %s"), LineNumber, *LogResult), true) 
+		: 
+		GEngine->AddOnScreenDebugMessage(DebugTracker, MsgDuration, PassFail, FString::Printf(TEXT("Line %d Failure. MultiplayerSessionsSubsystem.cpp: %s"), LineNumber, *LogResult), true);	
 
-	GEngine->AddOnScreenDebugMessage(
-		0,
-		MsgDuration,
-		PassFail,
-		DefaultMsg,
-		true
-	);					
+	DebugTracker +=1;				
 }
 
 void UMultiplayerSessionsSubsystem::CreateSession(int32 NumPublicConnections, FString MatchType)
