@@ -25,20 +25,13 @@ void UMultiplayerSessionsSubsystem::DebugMessageLog(bool bDidSucceed, int LineNu
 	if (GEngine == nullptr) return;
 	FColor PassFail;
 	float MsgDuration;
-	FString DefaultMsg;
-	FString Input = LogResult;
 
-	bDidSucceed ? DefaultMsg = TEXT("Line %d Success. MultiplayerSessionsSubsystem.cpp: %s"), LineNumber, *Input : DefaultMsg = TEXT("Line %d Failure. MultiplayerSessionsSubsystem.cpp: %s"), LineNumber, *Input;
 	bDidSucceed ? PassFail = FColor::Green : PassFail = FColor::Red;
 	bDidSucceed ? MsgDuration = 5.f : MsgDuration = 15.f;
-
-	GEngine->AddOnScreenDebugMessage(
-		DebugTracker,
-		MsgDuration,
-		PassFail,
-		DefaultMsg,
-		true
-	);	
+	bDidSucceed ? 
+		GEngine->AddOnScreenDebugMessage(DebugTracker, MsgDuration, PassFail, FString::Printf(TEXT("Line %d Success. MultiplayerSessionsSubsystem.cpp: %s"), LineNumber, *LogResult), true) 
+		: 
+		GEngine->AddOnScreenDebugMessage(DebugTracker, MsgDuration, PassFail, FString::Printf(TEXT("Line %d Failure. MultiplayerSessionsSubsystem.cpp: %s"), LineNumber, *LogResult), true);	
 
 	DebugTracker +=1;				
 }
