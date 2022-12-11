@@ -9,6 +9,7 @@
 
 void UMenu::MenuSetup(int32 NumberOfPublicConnections, FString TypeOfMatch, FString LobbyPath)
 {
+	// Set the variables to be used when creating the session
 	PathToLobby = FString::Printf(TEXT("%s?listen"), *LobbyPath);
 	NumPublicConnections = NumberOfPublicConnections;
 	MatchType = TypeOfMatch;
