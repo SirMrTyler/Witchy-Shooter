@@ -58,7 +58,7 @@ protected:
 	void OnStartSessionComplete(FName SessionName, bool bWasSuccessful);
 
 private:
-	void DebugMessageLog(bool bDidSucceed, int LineNumber, FString LogResult);
+//	void DebugMessageLog(bool bDidSucceed, int LineNumber, FString LogResult);
 	IOnlineSessionPtr SessionInterface;
 	TSharedPtr<FOnlineSessionSettings> LastSessionSettings;
 	TSharedPtr<FOnlineSessionSearch> LastSessionSearch;
@@ -82,5 +82,5 @@ private:
 	int32 LastNumPublicConnections;
 	FString LastMatchType;
 
-	int32 DebugTracker;
+//	int32 DebugTracker;
 };

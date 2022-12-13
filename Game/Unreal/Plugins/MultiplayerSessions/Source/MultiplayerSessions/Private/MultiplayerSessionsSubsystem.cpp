@@ -12,7 +12,7 @@ UMultiplayerSessionsSubsystem::UMultiplayerSessionsSubsystem():
 	DestroySessionCompleteDelegate(FOnDestroySessionCompleteDelegate::CreateUObject(this, &ThisClass::OnDestroySessionComplete)),
 	StartSessionCompleteDelegate(FOnStartSessionCompleteDelegate::CreateUObject(this, &ThisClass::OnStartSessionComplete))
 {
-	DebugTracker = 0;
+	// DebugTracker = 0;
 	IOnlineSubsystem* Subsystem = IOnlineSubsystem::Get();
 	if (Subsystem)
 	{
@@ -20,7 +20,7 @@ UMultiplayerSessionsSubsystem::UMultiplayerSessionsSubsystem():
 	}
 }
 
-void UMultiplayerSessionsSubsystem::DebugMessageLog(bool bDidSucceed, int LineNumber, FString LogResult)
+/*void UMultiplayerSessionsSubsystem::DebugMessageLog(bool bDidSucceed, int LineNumber, FString LogResult)
 {
 	if (GEngine == nullptr) return;
 	FColor PassFail;
@@ -37,12 +37,15 @@ void UMultiplayerSessionsSubsystem::DebugMessageLog(bool bDidSucceed, int LineNu
 
 	// Increment the debug tracker so we don't overwrite the previous message
 	DebugTracker +=1;				
-}
+}*/
 
 void UMultiplayerSessionsSubsystem::CreateSession(int32 NumPublicConnections, FString MatchType)
 {
 	// If the session interface is invalid, return
-	if (!SessionInterface.IsValid()) return;
+	if (!SessionInterface.IsValid()) 
+	{
+		return;
+	}
 
 	auto ExistingSession = SessionInterface->GetNamedSession(NAME_GameSession);
 	// If there is an existing session, destroy it before creating a new one
@@ -73,7 +76,6 @@ void UMultiplayerSessionsSubsystem::CreateSession(int32 NumPublicConnections, FS
 	const ULocalPlayer* LocalPlayer = GetWorld()->GetFirstLocalPlayerFromController();
 	if (!SessionInterface->CreateSession(*LocalPlayer->GetPreferredUniqueNetId(), NAME_GameSession, *LastSessionSettings))
 	{
-		DebugMessageLog(false, 72, TEXT("Couldn't create session..."));
 		SessionInterface->ClearOnCreateSessionCompleteDelegate_Handle(CreateSessionCompleteDelegateHandle);
 
 		// Broadcast our own custom delegate
@@ -85,7 +87,6 @@ void UMultiplayerSessionsSubsystem::FindSessions(int32 MaxSearchResults)
 {
 	if (!SessionInterface.IsValid())
 	{
-		DebugMessageLog(false, 83, TEXT("SessionInterface invalid while finding sessions..."));
 		return;
 	}
 
@@ -101,7 +102,6 @@ void UMultiplayerSessionsSubsystem::FindSessions(int32 MaxSearchResults)
 	const ULocalPlayer* LocalPlayer = GetWorld()->GetFirstLocalPlayerFromController();
 	if (!SessionInterface->FindSessions(*LocalPlayer->GetPreferredUniqueNetId(), LastSessionSearch.ToSharedRef()))
 	{
-		DebugMessageLog(false, 97, TEXT("Couldn't find session..."));
 		SessionInterface->ClearOnFindSessionsCompleteDelegate_Handle(FindSessionsCompleteDelegateHandle);
 
 		MultiplayerOnFindSessionsComplete.Broadcast(TArray<FOnlineSessionSearchResult>(), false);
@@ -113,10 +113,8 @@ void UMultiplayerSessionsSubsystem::JoinSession(const FOnlineSessionSearchResult
 	if (!SessionInterface.IsValid())
 	{
 		MultiplayerOnJoinSessionComplete.Broadcast(EOnJoinSessionCompleteResult::UnknownError);
-		DebugMessageLog(false, 106, TEXT("SessionInterface is invalid..."));
 		return;
 	}
-	DebugMessageLog(true, 106, TEXT("Joining Session..."));
 
 	JoinSessionCompleteDelegateHandle = SessionInterface->AddOnJoinSessionCompleteDelegate_Handle(JoinSessionCompleteDelegate);
 
@@ -124,7 +122,6 @@ void UMultiplayerSessionsSubsystem::JoinSession(const FOnlineSessionSearchResult
 	const ULocalPlayer* LocalPlayer = GetWorld()->GetFirstLocalPlayerFromController();
 	if (!SessionInterface->JoinSession(*LocalPlayer->GetPreferredUniqueNetId(), NAME_GameSession, SessionResult))
 	{
-		DebugMessageLog(false, 116, TEXT("Couldn't find one of the following PlayerNetId, GameSession, or OnlineSessionSearchResult... couldn't join session"));
 		SessionInterface->ClearOnJoinSessionCompleteDelegate_Handle(JoinSessionCompleteDelegateHandle);
 
 		MultiplayerOnJoinSessionComplete.Broadcast(EOnJoinSessionCompleteResult::UnknownError);
@@ -135,7 +132,6 @@ void UMultiplayerSessionsSubsystem::DestroySession()
 {
 	if (!SessionInterface.IsValid())
 	{
-		DebugMessageLog(false, 128, TEXT("Session interface invalid... Destroying Session"));
 		MultiplayerOnDestroySessionComplete.Broadcast(false);
 		return;
 	}
@@ -145,7 +141,6 @@ void UMultiplayerSessionsSubsystem::DestroySession()
 	// Destroy the session
 	if (!SessionInterface->DestroySession(NAME_GameSession))
 	{
-		DebugMessageLog(false, 137, TEXT("Couldn't Destory Session... Clearing destroy session attempt"));
 		SessionInterface->ClearOnDestroySessionCompleteDelegate_Handle(DestroySessionCompleteDelegateHandle);
 		MultiplayerOnDestroySessionComplete.Broadcast(false);
 	}
@@ -153,7 +148,6 @@ void UMultiplayerSessionsSubsystem::DestroySession()
 
 void UMultiplayerSessionsSubsystem::StartSession()
 {
-	DebugMessageLog(true, 144, TEXT("Starting session..."));
 }
 
 void UMultiplayerSessionsSubsystem::OnCreateSessionComplete(FName SessionName, bool bWasSuccessful)
@@ -161,10 +155,6 @@ void UMultiplayerSessionsSubsystem::OnCreateSessionComplete(FName SessionName, b
 	if (SessionInterface)
 	{
 		SessionInterface->ClearOnCreateSessionCompleteDelegate_Handle(CreateSessionCompleteDelegateHandle);
-	}
-	else
-	{
-		DebugMessageLog(false, 151, TEXT("Couldn't find SessionInterface..."));
 	}
 
 	MultiplayerOnCreateSessionComplete.Broadcast(bWasSuccessful);
@@ -176,13 +166,11 @@ void UMultiplayerSessionsSubsystem::OnFindSessionsComplete(bool bWasSuccessful)
 	{
 		SessionInterface->ClearOnFindSessionsCompleteDelegate_Handle(FindSessionsCompleteDelegateHandle);
 	}
-	else DebugMessageLog(false, 165, TEXT("SessionInterface not found during find sessions..."));
 
 	// If we didn't find any sessions, broadcast an empty array
 	if (LastSessionSearch->SearchResults.Num() <= 0)
 	{
 		MultiplayerOnFindSessionsComplete.Broadcast(TArray<FOnlineSessionSearchResult>(), false);
-		DebugMessageLog(false, 170, TEXT("Found 0 sessions"));
 		return;
 	}
 
@@ -196,7 +184,6 @@ void UMultiplayerSessionsSubsystem::OnJoinSessionComplete(FName SessionName, EOn
 	{
 		SessionInterface->ClearOnJoinSessionCompleteDelegate_Handle(JoinSessionCompleteDelegateHandle);
 	}
-	else DebugMessageLog(false, 165, TEXT("SessionInterface not found during join sessions..."));
 
 	MultiplayerOnJoinSessionComplete.Broadcast(Result);
 }
@@ -218,5 +205,4 @@ void UMultiplayerSessionsSubsystem::OnDestroySessionComplete(FName SessionName, 
 
 void UMultiplayerSessionsSubsystem::OnStartSessionComplete(FName SessionName, bool bWasSuccessful)
 {
-	DebugMessageLog(true, 206, TEXT("Session Started!"));
 }
